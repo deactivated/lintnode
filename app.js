@@ -10,7 +10,7 @@
 var
   sys = require('sys'),
   http = require('http'),
-  multipart = require('multipart'),
+  multipart = require('./multipart'),
   JSLINT = require('./fulljslint');
 
 var jslint_options = {
@@ -43,33 +43,46 @@ function formatErrors(errors) {
   return output.join('');
 };
 
+
+function parse_multipart(req) {
+  var parser = multipart.parser();
+  parser.headers = req.headers;
+  req.addListener("data", function (chunk) {
+    parser.write(chunk);
+  });
+  req.addListener("end", function () {
+    parser.close();
+  });
+  return parser;
+}
+
+
 var server = http.createServer(function (req, res) {
   function malformed() {
-    res.writeHeader(400, {"content-type": "text/plain"});
+    res.writeHead(400, {"content-type": "text/plain"});
     res.close();
   }
 
   var 
-    mp = multipart.parse(req),
+    mp = parse_multipart(req),
     buf = [];
 
   if (req.headers.expect &&
       req.headers.expect.indexOf("100-continue") >= 0) {
-    res.write("");
-    res.write("HTTP/1.1 100 Continue\r\n\r\n");
+    req.connection.write("HTTP/1.1 100 Continue\r\n\r\n");
   }
 
-  mp.addListener("error", function (err) {
+  mp.onError = function (err) {
     malformed();
-  });
-  mp.addListener("partBegin", function (part) {
+  };
+  mp.onPartBegin = function (part) {
     if (part.name !== "source")
       malformed();
-  });
-  mp.addListener("body", function (chunk) {
+  };
+  mp.onData = function (chunk) {
     buf.push(chunk);
-  });
-  mp.addListener("complete", function () {
+  };
+  mp.onEnd = function () {
     var data = buf.join(""), lint;
 
     JSLINT.JSLINT(data, jslint_options);
@@ -77,8 +90,8 @@ var server = http.createServer(function (req, res) {
     res.writeHead(200, {"Content-Type": "text/plain",
                         "Content-Length": lint.length});
     res.write(lint);
-    res.close();
-  });
+    res.end();
+  };
 })
 
 server.listen(8000);
