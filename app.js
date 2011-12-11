@@ -11,7 +11,7 @@ var
   sys = require('sys'),
   http = require('http'),
   multipart = require('./multipart'),
-  JSLINT = require('./fulljslint');
+  JSLINT = require('./jslint');
 
 var jslint_options = {
   bitwise: true,
