@@ -1,3 +1,7 @@
+/*jslint
+    node: true, plusplus: true
+*/
+
 /* HTTP interface to JSLint.
 
    Takes roughly half the time to jslint something with this than to
@@ -6,6 +10,8 @@
    Invoke from bash script like:
      curl --form source="<${1}" ${JSLINT_URL}
 */
+
+'use strict';
 
 var
   sys = require('sys'),
@@ -20,7 +26,7 @@ var jslint_options = {
   newcap: true,
   nomen: true,
   onevar: true,
-  plusplus: false,
+  plusplus: true,
   regexp: true,
   rhino: true,
   undef: true,
@@ -99,5 +105,10 @@ var server = http.createServer(function (req, res) {
   };
 });
 
-server.listen(8000);
+var port = (process.argv.length >= 4 &&
+            process.argv[2] === "--port" &&
+            /^\d+$/.test(process.argv[3])) ?
+  parseInt(process.argv[3], 10) : 8000;
+
+server.listen(port);
 sys.puts("listening");
