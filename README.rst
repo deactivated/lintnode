@@ -48,7 +48,7 @@ Configuration
 `jslint_port` may be passed on the node command line with the
 ``--port`` parameter.  It defaults to 8000.
 
-`jstlint_options` is currently only configurable by editing
+`jslint_options` is currently only configurable by editing
 ``app.js``.  For documentation on JSLint's options, see `JSLint
 options`_.
 
