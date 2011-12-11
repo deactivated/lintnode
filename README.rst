@@ -43,8 +43,6 @@ See the included `flymake-jslint.el`__.
 Configuration
 -------------
 
-# TODO - Add this to new server
-#
 `jslint_port` may be passed on the node command line with the
 ``--port`` parameter.  It defaults to 8000.
 
