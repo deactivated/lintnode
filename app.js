@@ -20,14 +20,18 @@ var jslint_options = {
   newcap: true,
   nomen: true,
   onevar: true,
-  plusplus: true,
+  plusplus: false,
   regexp: true,
   rhino: true,
   undef: true,
   white: true,
 
+  browser: true,
+  devel: true,
+
+  maxerr: 500,
   indent: 2,
-  predef: ['$', 'window']
+  predef: ['$', 'jQuery']
 };
 
 function formatErrors(errors) {
@@ -41,7 +45,7 @@ function formatErrors(errors) {
     write(e.line + ":" + e.character + ":" + e.reason);
   }
   return output.join('');
-};
+}
 
 
 function parse_multipart(req) {
@@ -76,8 +80,9 @@ var server = http.createServer(function (req, res) {
     malformed();
   };
   mp.onPartBegin = function (part) {
-    if (part.name !== "source")
+    if (part.name !== "source") {
       malformed();
+    }
   };
   mp.onData = function (chunk) {
     buf.push(chunk);
@@ -92,7 +97,7 @@ var server = http.createServer(function (req, res) {
     res.write(lint);
     res.end();
   };
-})
+});
 
 server.listen(8000);
 sys.puts("listening");
